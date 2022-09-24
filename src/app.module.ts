@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import * as Joi from 'joi';
 import { DatabaseModule } from './database/database.module';
+import { UsersModule } from './users/users.module';
 import * as redisStore from 'cache-manager-ioredis';
 
 @Module({
@@ -28,6 +29,7 @@ import * as redisStore from 'cache-manager-ioredis';
       port: 6379,
     }),
     DatabaseModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
