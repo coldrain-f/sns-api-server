@@ -1,4 +1,4 @@
-import { BoardHashTag } from 'src/boards-hashtags/entities/board-hashtag.entity';
+import { BoardHashtag } from 'src/boards-hashtags/entities/board-hashtag.entity';
 import {
   Column,
   CreateDateColumn,
@@ -7,7 +7,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-export class HashTag {
+export class Hashtag {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -20,6 +20,6 @@ export class HashTag {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @OneToMany(() => BoardHashTag, (boardHashTag) => boardHashTag.hashTag)
-  boardHashTags: BoardHashTag;
+  @OneToMany(() => BoardHashtag, (boardHashtag) => boardHashtag.hashtag)
+  boardHashtags: BoardHashtag;
 }

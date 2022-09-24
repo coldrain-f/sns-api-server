@@ -1,4 +1,4 @@
-import { BoardHashTag } from 'src/boards-hashtags/entities/board-hashtag.entity';
+import { BoardHashtag } from 'src/boards-hashtags/entities/board-hashtag.entity';
 import { Like } from 'src/likes/entities/like.entity';
 import { User } from 'src/users/entities/users.entity';
 import {
@@ -38,6 +38,6 @@ export class Board {
   @OneToMany(() => Like, (like) => like.board)
   likes: Like[];
 
-  @OneToMany(() => BoardHashTag, (boardHashTag) => boardHashTag.board)
-  boardHashTags: BoardHashTag[];
+  @OneToMany(() => BoardHashtag, (boardHashtag) => boardHashtag.board)
+  boardHashtags: BoardHashtag[];
 }

@@ -1,5 +1,5 @@
 import { Board } from 'src/boards/entities/board.entity';
-import { HashTag } from 'src/hashtags/entities/hashtag.entity';
+import { Hashtag } from 'src/hashtags/entities/hashtag.entity';
 import {
   CreateDateColumn,
   ManyToOne,
@@ -7,7 +7,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-export class BoardHashTag {
+export class BoardHashtag {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -17,9 +17,9 @@ export class BoardHashTag {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @ManyToOne(() => Board, (board) => board.boardHashTags)
+  @ManyToOne(() => Board, (board) => board.boardHashtags)
   board: Board;
 
-  @ManyToOne(() => HashTag, (hashTag) => hashTag.boardHashTags)
-  hashTag: HashTag;
+  @ManyToOne(() => Hashtag, (hashtag) => hashtag.boardHashtags)
+  hashtag: Hashtag;
 }
