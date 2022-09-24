@@ -30,8 +30,7 @@
 <br>
 
 ## 🔀 ERD(Entity Relationship Diagram)
-![image](https://user-images.githubusercontent.com/81298415/192096441-ac9e2723-f240-4e83-ac35-97fbad37e649.png)
-
+![image](https://user-images.githubusercontent.com/81298415/192096567-ea7de2a8-7562-4f83-92a5-16e3df598179.png)
 
 ## ✨ 프로젝트 구조
 
