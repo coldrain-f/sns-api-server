@@ -1,5 +1,7 @@
+import { Board } from 'src/boards/entities/board.entity';
 import {
   CreateDateColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -13,4 +15,7 @@ export class BoardHashTag {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @ManyToOne(() => Board, (board) => board.boardHashTags)
+  board: Board;
 }
