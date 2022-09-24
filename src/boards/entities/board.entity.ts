@@ -1,8 +1,10 @@
+import { Like } from 'src/likes/entities/like.entity';
 import { User } from 'src/users/entities/users.entity';
 import {
   Column,
   CreateDateColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -31,4 +33,7 @@ export class Board {
 
   @ManyToOne(() => User, (user) => user.boards)
   user: User;
+
+  @OneToMany(() => Like, (like) => like.board)
+  likes: Like[];
 }

@@ -1,3 +1,4 @@
+import { Board } from 'src/boards/entities/board.entity';
 import { User } from 'src/users/entities/users.entity';
 import {
   CreateDateColumn,
@@ -18,4 +19,7 @@ export class Like {
 
   @ManyToOne(() => User, (user) => user.likes)
   user: User;
+
+  @ManyToOne(() => Board, (board) => board.likes)
+  board: Board;
 }
