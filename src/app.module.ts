@@ -6,6 +6,7 @@ import * as Joi from 'joi';
 import { DatabaseModule } from './database/database.module';
 import { UsersModule } from './users/users.module';
 import { LikesModule } from './likes/likes.module';
+import { BoardsModule } from './boards/boards.module';
 import * as redisStore from 'cache-manager-ioredis';
 
 @Module({
@@ -32,6 +33,7 @@ import * as redisStore from 'cache-manager-ioredis';
     DatabaseModule,
     UsersModule,
     LikesModule,
+    BoardsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
