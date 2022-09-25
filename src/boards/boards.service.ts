@@ -1,4 +1,55 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { BoardHashtag } from 'src/boards-hashtags/entities/board-hashtag.entity';
+import { Hashtag } from 'src/hashtags/entities/hashtag.entity';
+import { Connection, Repository } from 'typeorm';
+import { Board } from './entities/board.entity';
 
 @Injectable()
-export class BoardsService {}
+export class BoardsService {
+  constructor(
+    @InjectRepository(Board)
+    private readonly boardsRepository: Repository<Board>,
+    private readonly hashtagsRepository: Repository<Hashtag>,
+    private readonly boardsHashtagsRepository: Repository<BoardHashtag>,
+    private readonly connection: Connection,
+  ) {}
+
+  /**
+   * 게시글 생성
+   */
+  async create(title: string, content: string, hashtags: string) {
+    // Todo: userId로 DB에서 User 조회
+
+    // Todo: Connection 사용이 deprecated 추후에 다른 방법으로 적용
+    const queryRunner = this.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const savedBoard: Board = await this.boardsRepository.save({
+        title,
+        content,
+        user: null,
+      });
+
+      // Todo: 해시태그 유효성 검사
+      hashtags.split(',').forEach(async (hashtag) => {
+        const savedHashTag: Hashtag = await this.hashtagsRepository.save({
+          name: hashtag,
+        });
+        await this.boardsHashtagsRepository.save({
+          board: savedBoard,
+          hashtag: savedHashTag,
+        });
+      });
+
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      // Todo: throw err를 하는 경우에도 Nest가 자동으로 처리해주는지 체크
+      await queryRunner.rollbackTransaction();
+    } finally {
+      await queryRunner.release();
+    }
+  }
+}
