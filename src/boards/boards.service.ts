@@ -79,6 +79,7 @@ export class BoardsService {
     board.title = title;
     board.content = content;
     // Todo: 해시태그는 어떻게 할지 고민 필요
+    // 게시글과 연관된 해시태그를 싹다 지우고 새로 집어넣는다.
     await this.boardsRepository.save(board);
   }
 
