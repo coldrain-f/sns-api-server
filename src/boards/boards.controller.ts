@@ -49,6 +49,10 @@ export class BoardsController {
   /**
    * 게시글 상세보기 API
    */
+  @Get(':id')
+  async findOne(@Param('id', ParseIntPipe) boardId: number) {
+    await this.boardsService.findOne(boardId);
+  }
   /**
    * 게시글 목록 API
    */

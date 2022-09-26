@@ -80,10 +80,35 @@ export class BoardsService {
     const board = await this.findOne({ where: { id: boardId } });
     board.isDeleted = true;
 
-    // Todo: 해시태그는 어떻게 할지 고민 필요
     await this.boardsRepository.save(board);
   }
 
+  /**
+   * 게시글 상세보기
+   */
+  async getDetail(boardId: number) {
+    const board: Board = await this.findOne({
+      where: { id: boardId },
+      relations: ['boardHashtags', 'likes'],
+    });
+    await this.incrementLikeCount(board);
+    // Todo: 상세보기 Response DTO 만들어서 내보내기
+    // 1. 좋아요 수 계산해서 설정
+    // 2. 해시태그 만들어서 배열로 설정
+    return board;
+  }
+
+  /**
+   * 조회수 +1
+   */
+  private async incrementLikeCount(board: Board) {
+    board.likeCount = board.likeCount + 1;
+    await this.boardsRepository.save(board);
+  }
+
+  /**
+   * 게시글 한 개 조회
+   */
   private async findOne(options: FindOneOptions<Board>) {
     const board = await this.boardsRepository.findOne(options);
     if (!board) {
