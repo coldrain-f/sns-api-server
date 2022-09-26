@@ -101,7 +101,7 @@ export class BoardsService {
       where: { id: boardId },
       relations: ['boardHashtags', 'likes'],
     });
-    await this.incrementLikeCount(board);
+    await this.incrementViews(board);
     // Todo: 상세보기 Response DTO 만들어서 내보내기
     // 1. 좋아요 수 계산해서 설정
     // 2. 해시태그 만들어서 배열로 설정
@@ -111,8 +111,8 @@ export class BoardsService {
   /**
    * 조회수 +1
    */
-  private async incrementLikeCount(board: Board): Promise<void> {
-    board.likeCount = board.likeCount + 1;
+  private async incrementViews(board: Board): Promise<void> {
+    ++board.views;
     await this.boardsRepository.save(board);
   }
 
