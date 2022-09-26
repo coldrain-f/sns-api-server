@@ -6,6 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { BoardHashtag } from 'src/boards-hashtags/entities/board-hashtag.entity';
 import { Hashtag } from 'src/hashtags/entities/hashtag.entity';
+import { HashtagsService } from 'src/hashtags/hashtags.service';
 import { Connection, FindOneOptions, Repository } from 'typeorm';
 import { CreateBoardDTO } from './dto/create-board.dto';
 import { UpdateBoardDTO } from './dto/update-board.dto';
@@ -35,7 +36,7 @@ export class BoardsService {
   async create(request: CreateBoardDTO): Promise<void> {
     const { title, content, hashtags } = request;
     // Todo: userId로 DB에서 User 조회
-
+    // Todo: 해시태그 유효성 검사
     // Todo: Connection 사용이 deprecated 추후에 다른 방법으로 적용
     const queryRunner = this.connection.createQueryRunner();
     await queryRunner.connect();
@@ -48,21 +49,12 @@ export class BoardsService {
         user: null,
       });
 
-      // Todo: 해시태그 유효성 검사
-      hashtags.split(',').forEach(async (hashtag) => {
-        const savedHashTag: Hashtag = await this.hashtagsRepository.save({
-          name: hashtag,
-        });
-        await this.boardsHashtagsRepository.save({
-          board: savedBoard,
-          hashtag: savedHashTag,
-        });
-      });
+      this.addAllHashtag(hashtags, savedBoard);
 
       await queryRunner.commitTransaction();
     } catch (err) {
-      // Todo: throw err를 하는 경우에도 Nest가 자동으로 처리해주는지 체크
       await queryRunner.rollbackTransaction();
+      throw new BadRequestException('게시글 등록에 실패했습니다.');
     } finally {
       await queryRunner.release();
     }
@@ -73,14 +65,28 @@ export class BoardsService {
    */
   async update(boardId: number, request: UpdateBoardDTO): Promise<void> {
     // Todo: 본인 게시글만 수정할 수 있도록 변경 필요
-
     const { title, content, hashtags } = request;
-    const board: Board = await this.findOne({ where: { id: boardId } });
-    board.title = title;
-    board.content = content;
-    // Todo: 해시태그는 어떻게 할지 고민 필요
-    // 게시글과 연관된 해시태그를 싹다 지우고 새로 집어넣는다.
-    await this.boardsRepository.save(board);
+    const queryRunner = this.connection.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      // Todo: 해시태그는 어떻게 할지 고민 필요
+      // 게시글과 연관된 해시태그를 싹다 지우고 새로 집어넣는다.
+      const board: Board = await this.findOne({ where: { id: boardId } });
+      board.title = title;
+      board.content = content;
+      this.deleteAllHashtag(board);
+      this.addAllHashtag(hashtags, board);
+
+      await this.boardsRepository.save(board);
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   /**
@@ -129,5 +135,52 @@ export class BoardsService {
       throw new BadRequestException('삭제된 게시글입니다.');
     }
     return board;
+  }
+
+  /**
+   * 게시글에 해시태그 추가
+   */
+  private async addAllHashtag(hashtags: string, board: Board) {
+    hashtags.split(',').forEach(async (hashtag) => {
+      const savedHashtag: Hashtag = await this.hashtagsRepository.save({
+        name: hashtag,
+      });
+      await this.boardsHashtagsRepository.save({
+        board,
+        hashtag: savedHashtag,
+      });
+    });
+  }
+
+  /**
+   * 게시글 번호와 연관된 모든 해시태그를 삭제
+   */
+  private async deleteAllHashtag(board: Board) {
+    const queryRunner = this.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const boardHashtags: BoardHashtag[] =
+        await this.boardsHashtagsRepository.find({ where: { board } });
+
+      // 부모 제거 -> Hashtag
+      boardHashtags.forEach(
+        async (boardHashtag) =>
+          await this.hashtagsRepository.remove(boardHashtag.hashtag),
+      );
+
+      // 부모가 없는 자식들 제거 -> BoardHashtag
+      await this.boardsHashtagsRepository.remove(boardHashtags);
+
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw new BadRequestException(
+        '게시글 번호에 해당하는 해시태그 삭제를 실패했습니다.',
+      );
+    } finally {
+      await queryRunner.release();
+    }
   }
 }
