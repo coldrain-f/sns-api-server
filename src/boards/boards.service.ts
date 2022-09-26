@@ -11,6 +11,14 @@ import { CreateBoardDTO } from './dto/create-board.dto';
 import { UpdateBoardDTO } from './dto/update-board.dto';
 import { Board } from './entities/board.entity';
 
+export interface BoardDetailInfo {
+  title: string;
+  content: string;
+  likeCount: number;
+  views: number;
+  hashtags: string[];
+}
+
 @Injectable()
 export class BoardsService {
   constructor(
