@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 import { BoardsService } from './boards.service';
 import { CreateBoardDTO } from './dto/create-board.dto';
+import { UpdateBoardDTO } from './dto/update-board.dto';
 
 @Controller('boards')
 export class BoardsController {
@@ -14,14 +15,18 @@ export class BoardsController {
    * 게시글 생성 API
    */
   @Post()
-  create(@Body() dto: CreateBoardDTO) {
+  async create(@Body() dto: CreateBoardDTO) {
     // Todo: JWT 토큰에서 사용자 PK를 추출해서 넘겨주도록 해야한다.
     const { title, content, hashtags } = dto;
-    this.boardsService.create(title, content, hashtags);
+    await this.boardsService.create(title, content, hashtags);
   }
   /**
    * 게시글 수정 API
    */
+  @Patch(':id')
+  async update(@Param('id') boardId: number, @Body() request: UpdateBoardDTO) {
+    await this.boardsService.update(boardId, request);
+  }
   /**
    * 게시글 삭제 API
    */
