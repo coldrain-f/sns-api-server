@@ -6,7 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { BoardHashtag } from 'src/boards-hashtags/entities/board-hashtag.entity';
 import { Hashtag } from 'src/hashtags/entities/hashtag.entity';
-import { HashtagsService } from 'src/hashtags/hashtags.service';
+import { LikesService } from 'src/likes/likes.service';
 import { Connection, FindOneOptions, Repository } from 'typeorm';
 import { CreateBoardDTO } from './dto/create-board.dto';
 import { UpdateBoardDTO } from './dto/update-board.dto';
@@ -27,6 +27,7 @@ export class BoardsService {
     private readonly boardsRepository: Repository<Board>,
     private readonly hashtagsRepository: Repository<Hashtag>,
     private readonly boardsHashtagsRepository: Repository<BoardHashtag>,
+    private readonly likesService: LikesService,
     private readonly connection: Connection,
   ) {}
 
@@ -108,19 +109,22 @@ export class BoardsService {
       where: { id: boardId },
       relations: ['boardHashtags', 'likes'],
     });
-    await this.incrementViews(board);
-    // Todo: 상세보기 Response DTO 만들어서 내보내기
-    // 1. 좋아요 수 계산해서 설정
+
+    board.views = await this.incrementViews(board);
+    board.likeCount = await this.likesService.getLikeCountByBoardId(boardId);
     // 2. 해시태그 만들어서 배열로 설정
+
+    // Todo: 상세보기 Response DTO 만들어서 내보내기
     return board;
   }
 
   /**
-   * 조회수 +1
+   * 기존 조회수에서 1증가
    */
-  private async incrementViews(board: Board): Promise<void> {
+  private async incrementViews(board: Board): Promise<number> {
     ++board.views;
-    await this.boardsRepository.save(board);
+    const savedBoard: Board = await this.boardsRepository.save(board);
+    return savedBoard.views;
   }
 
   /**
