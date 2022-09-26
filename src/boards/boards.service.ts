@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BoardHashtag } from 'src/boards-hashtags/entities/board-hashtag.entity';
 import { Hashtag } from 'src/hashtags/entities/hashtag.entity';
-import { Connection, Repository } from 'typeorm';
+import { Connection, FindOneOptions, Repository } from 'typeorm';
 import { UpdateBoardDTO } from './dto/update-board.dto';
 import { Board } from './entities/board.entity';
 
@@ -61,12 +61,29 @@ export class BoardsService {
     // Todo: 본인 게시글만 수정할 수 있도록 변경 필요
 
     const { title, content, hashtags } = request;
-    const board: Board = await this.boardsRepository.findOne({
-      where: { id: boardId },
-    });
+    const board: Board = await this.findOne({ where: { id: boardId } });
     board.title = title;
     board.content = content;
     // Todo: 해시태그는 어떻게 할지 고민 필요
     await this.boardsRepository.save(board);
+  }
+
+  /**
+   * 게시글 삭제
+   */
+  async delete(boardId: number) {
+    // Todo: 본인 게시글만 수정할 수 있도록 변경 필요
+    const board = await this.findOne({ where: { id: boardId } });
+
+    // Todo: 해시태그는 어떻게 할지 고민 필요
+    await this.boardsRepository.remove(board);
+  }
+
+  private async findOne(options: FindOneOptions<Board>) {
+    const board = await this.boardsRepository.findOne(options);
+    if (!board) {
+      throw new NotFoundException('게시글을 찾을 수 없습니다.');
+    }
+    return board;
   }
 }

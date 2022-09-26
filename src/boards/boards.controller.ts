@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { BoardsService } from './boards.service';
 import { CreateBoardDTO } from './dto/create-board.dto';
 import { UpdateBoardDTO } from './dto/update-board.dto';
@@ -24,12 +33,19 @@ export class BoardsController {
    * 게시글 수정 API
    */
   @Patch(':id')
-  async update(@Param('id') boardId: number, @Body() request: UpdateBoardDTO) {
+  async update(
+    @Param('id', ParseIntPipe) boardId: number,
+    @Body() request: UpdateBoardDTO,
+  ) {
     await this.boardsService.update(boardId, request);
   }
   /**
    * 게시글 삭제 API
    */
+  @Delete(':id')
+  async delete(@Param('id', ParseIntPipe) boardId: number) {
+    await this.boardsService.delete(boardId);
+  }
   /**
    * 게시글 상세보기 API
    */
