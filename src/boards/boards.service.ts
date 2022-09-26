@@ -23,7 +23,11 @@ export class BoardsService {
   /**
    * 게시글 생성
    */
-  async create(title: string, content: string, hashtags: string) {
+  async create(
+    title: string,
+    content: string,
+    hashtags: string,
+  ): Promise<void> {
     // Todo: userId로 DB에서 User 조회
 
     // Todo: Connection 사용이 deprecated 추후에 다른 방법으로 적용
@@ -61,7 +65,7 @@ export class BoardsService {
   /**
    * 게시글 수정
    */
-  async update(boardId: number, request: UpdateBoardDTO) {
+  async update(boardId: number, request: UpdateBoardDTO): Promise<void> {
     // Todo: 본인 게시글만 수정할 수 있도록 변경 필요
 
     const { title, content, hashtags } = request;
@@ -75,7 +79,7 @@ export class BoardsService {
   /**
    * 게시글 삭제
    */
-  async delete(boardId: number) {
+  async delete(boardId: number): Promise<void> {
     // Todo: 본인 게시글만 수정할 수 있도록 변경 필요
     const board = await this.findOne({ where: { id: boardId } });
     board.isDeleted = true;
@@ -86,7 +90,7 @@ export class BoardsService {
   /**
    * 게시글 상세보기
    */
-  async getDetail(boardId: number) {
+  async getDetail(boardId: number): Promise<Board> {
     const board: Board = await this.findOne({
       where: { id: boardId },
       relations: ['boardHashtags', 'likes'],
@@ -101,7 +105,7 @@ export class BoardsService {
   /**
    * 조회수 +1
    */
-  private async incrementLikeCount(board: Board) {
+  private async incrementLikeCount(board: Board): Promise<void> {
     board.likeCount = board.likeCount + 1;
     await this.boardsRepository.save(board);
   }
@@ -109,7 +113,7 @@ export class BoardsService {
   /**
    * 게시글 한 개 조회
    */
-  private async findOne(options: FindOneOptions<Board>) {
+  private async findOne(options: FindOneOptions<Board>): Promise<Board> {
     const board = await this.boardsRepository.findOne(options);
     if (!board) {
       throw new NotFoundException('게시글을 찾을 수 없습니다.');
