@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { BoardHashtag } from 'src/boards-hashtags/entities/board-hashtag.entity';
 import { Hashtag } from 'src/hashtags/entities/hashtag.entity';
 import { Connection, FindOneOptions, Repository } from 'typeorm';
+import { CreateBoardDTO } from './dto/create-board.dto';
 import { UpdateBoardDTO } from './dto/update-board.dto';
 import { Board } from './entities/board.entity';
 
@@ -23,11 +24,8 @@ export class BoardsService {
   /**
    * 게시글 생성
    */
-  async create(
-    title: string,
-    content: string,
-    hashtags: string,
-  ): Promise<void> {
+  async create(request: CreateBoardDTO): Promise<void> {
+    const { title, content, hashtags } = request;
     // Todo: userId로 DB에서 User 조회
 
     // Todo: Connection 사용이 deprecated 추후에 다른 방법으로 적용
