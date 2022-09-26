@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BoardHashtag } from 'src/boards-hashtags/entities/board-hashtag.entity';
 import { Hashtag } from 'src/hashtags/entities/hashtag.entity';
@@ -74,15 +78,19 @@ export class BoardsService {
   async delete(boardId: number) {
     // Todo: 본인 게시글만 수정할 수 있도록 변경 필요
     const board = await this.findOne({ where: { id: boardId } });
+    board.isDeleted = true;
 
     // Todo: 해시태그는 어떻게 할지 고민 필요
-    await this.boardsRepository.remove(board);
+    await this.boardsRepository.save(board);
   }
 
   private async findOne(options: FindOneOptions<Board>) {
     const board = await this.boardsRepository.findOne(options);
     if (!board) {
       throw new NotFoundException('게시글을 찾을 수 없습니다.');
+    }
+    if (board.isDeleted) {
+      throw new BadRequestException('삭제된 게시글입니다.');
     }
     return board;
   }

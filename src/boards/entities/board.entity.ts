@@ -32,6 +32,9 @@ export class Board {
   @UpdateDateColumn()
   updatedAt: Date;
 
+  @Column({ default: false })
+  isDeleted: boolean;
+
   @ManyToOne(() => User, (user) => user.boards)
   user: User;
 
