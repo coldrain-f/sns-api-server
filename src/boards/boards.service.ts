@@ -25,10 +25,12 @@ export class BoardsService {
   constructor(
     @InjectRepository(Board)
     private readonly boardsRepository: Repository<Board>,
+    @InjectRepository(Hashtag)
     private readonly hashtagsRepository: Repository<Hashtag>,
+    @InjectRepository(BoardHashtag)
     private readonly boardsHashtagsRepository: Repository<BoardHashtag>,
-    private readonly likesService: LikesService,
     private readonly connection: Connection,
+    private readonly likesService: LikesService,
   ) {}
 
   /**

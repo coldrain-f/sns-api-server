@@ -24,10 +24,9 @@ export class BoardsController {
    * 게시글 생성 API
    */
   @Post()
-  async create(@Body() dto: CreateBoardDTO) {
+  async create(@Body() request: CreateBoardDTO) {
     // Todo: JWT 토큰에서 사용자 PK를 추출해서 넘겨주도록 해야한다.
-    const { title, content, hashtags } = dto;
-    await this.boardsService.create(title, content, hashtags);
+    await this.boardsService.create(request);
   }
   /**
    * 게시글 수정 API
@@ -51,7 +50,7 @@ export class BoardsController {
    */
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) boardId: number) {
-    await this.boardsService.findOne(boardId);
+    await this.boardsService.getDetail(boardId);
   }
   /**
    * 게시글 목록 API
