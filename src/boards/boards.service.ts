@@ -29,8 +29,8 @@ export class BoardsService {
     private readonly hashtagsRepository: Repository<Hashtag>,
     @InjectRepository(BoardHashtag)
     private readonly boardsHashtagsRepository: Repository<BoardHashtag>,
-    private readonly connection: Connection,
     private readonly likesService: LikesService,
+    private readonly connection: Connection,
   ) {}
 
   /**
@@ -106,7 +106,7 @@ export class BoardsService {
   /**
    * 게시글 상세보기
    */
-  async getDetail(boardId: number): Promise<Board> {
+  async getDetail(boardId: number): Promise<BoardDetailInfo> {
     const board: Board = await this.findOne({
       where: { id: boardId },
       relations: ['boardHashtags', 'likes'],
@@ -115,9 +115,22 @@ export class BoardsService {
     board.views = await this.incrementViews(board);
     board.likeCount = await this.likesService.getLikeCountByBoardId(boardId);
     // 2. 해시태그 만들어서 배열로 설정
+    const boardHashtags: BoardHashtag[] =
+      await this.boardsHashtagsRepository.find({
+        where: board,
+        relations: ['hashtag'],
+      });
+    const hashtags: string[] = [];
+    boardHashtags.forEach((bh) => hashtags.push(bh.hashtag.name));
 
     // Todo: 상세보기 Response DTO 만들어서 내보내기
-    return board;
+    return {
+      title: board.title,
+      content: board.content,
+      likeCount: board.likeCount,
+      views: board.views,
+      hashtags,
+    };
   }
 
   /**
