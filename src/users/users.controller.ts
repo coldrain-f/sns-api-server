@@ -1,4 +1,4 @@
-import { Body, Controller, Logger, Post } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService, JwtTokenInfo } from 'src/auth/auth.service';
 import { LoginRequestDTO } from './dto/login-request.dto';
 import { SignupRequestDTO } from './dto/signup-request.dto';
