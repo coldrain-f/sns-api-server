@@ -40,12 +40,14 @@ export class BoardsController {
   /**
    * 게시글 수정 API
    */
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   async update(
+    @CurrentUser() currentUser: User,
     @Param('id', ParseIntPipe) boardId: number,
     @Body() request: UpdateBoardDTO,
   ) {
-    await this.boardsService.update(boardId, request);
+    await this.boardsService.update(boardId, request, currentUser);
   }
   /**
    * 게시글 삭제 API

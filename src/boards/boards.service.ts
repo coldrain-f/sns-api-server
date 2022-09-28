@@ -71,8 +71,11 @@ export class BoardsService {
   /**
    * 게시글 수정
    */
-  async update(boardId: number, request: UpdateBoardDTO): Promise<void> {
-    // Todo: 본인 게시글만 수정할 수 있도록 변경 필요
+  async update(
+    boardId: number,
+    request: UpdateBoardDTO,
+    currentUser: User,
+  ): Promise<void> {
     const { title, content, hashtags } = request;
     const queryRunner = this.connection.createQueryRunner();
 
@@ -82,7 +85,13 @@ export class BoardsService {
     try {
       // Todo: 해시태그는 어떻게 할지 고민 필요
       // 게시글과 연관된 해시태그를 싹다 지우고 새로 집어넣는다.
-      const board: Board = await this.findOne({ where: { id: boardId } });
+      const board: Board = await this.findOne({
+        where: { id: boardId },
+        relations: ['user'],
+      });
+      if (board.user.id !== currentUser.id) {
+        throw new ForbiddenException();
+      }
       board.title = title;
       board.content = content;
       this.deleteAllHashtag(board);
@@ -91,7 +100,9 @@ export class BoardsService {
       await this.boardsRepository.save(board);
       await queryRunner.commitTransaction();
     } catch (err) {
+      // Todo: Exception에 따라서 분기할 수 있는 방법 찾아보기
       await queryRunner.rollbackTransaction();
+      throw new BadRequestException('게시글 수정에 실패했습니다.');
     } finally {
       await queryRunner.release();
     }
