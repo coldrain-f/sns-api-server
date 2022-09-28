@@ -30,7 +30,7 @@ export class UsersService {
    */
   async findUserBySub(jwtSub: string): Promise<User> {
     const findUser = await this.usersRepository.findOne({
-      select: { password: false },
+      select: { id: true, email: true, createdAt: true, updatedAt: true },
       where: { id: parseInt(jwtSub) },
     });
     if (!findUser) {

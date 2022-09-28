@@ -15,7 +15,8 @@ import { JwtStrtegy } from './jwt/jwt.strategy';
     forwardRef(() => UsersModule),
     PassportModule.register({ defaultStrategy: 'jwt', session: false }),
     JwtModule.register({
-      secret: process.env.JWT_SECRET_KEY,
+      // Todo: configService에서 가져오도록 변경 필요
+      secret: 'secret',
       signOptions: { expiresIn: '1y' },
     }),
   ],
