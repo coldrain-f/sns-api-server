@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { BoardHashtag } from 'src/boards-hashtags/entities/board-hashtag.entity';
 import { Hashtag } from 'src/hashtags/entities/hashtag.entity';
 import { LikesService } from 'src/likes/likes.service';
+import { User } from 'src/users/entities/users.entity';
 import { Connection, FindOneOptions, Repository } from 'typeorm';
 import { CreateBoardDTO } from './dto/create-board.dto';
 import { UpdateBoardDTO } from './dto/update-board.dto';
@@ -36,10 +37,9 @@ export class BoardsService {
   /**
    * 게시글 생성
    */
-  async create(request: CreateBoardDTO): Promise<void> {
+  async create(request: CreateBoardDTO, currentUser: User): Promise<void> {
     const { title, content, hashtags } = request;
-    // Todo: userId로 DB에서 User 조회
-    // Todo: 해시태그 유효성 검사
+
     // Todo: Connection 사용이 deprecated 추후에 다른 방법으로 적용
     const queryRunner = this.connection.createQueryRunner();
     await queryRunner.connect();
@@ -49,9 +49,12 @@ export class BoardsService {
       const savedBoard: Board = await this.boardsRepository.save({
         title,
         content,
-        user: null,
+        user: currentUser,
       });
 
+      // Todo: 해시태그가 없는 경우도 동작하는지 체크
+      // Todo: 이미 존재하는 해시태그라면 저장하지 않도록 변경
+      // Todo: 해시태그 유효성 검사
       this.addAllHashtag(hashtags, savedBoard);
 
       await queryRunner.commitTransaction();

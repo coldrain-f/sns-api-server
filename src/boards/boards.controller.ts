@@ -3,11 +3,17 @@ import {
   Controller,
   Delete,
   Get,
+  Logger,
   Param,
   ParseIntPipe,
   Patch,
   Post,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/auth/jwt/jwt.guard';
+import { User } from 'src/users/entities/users.entity';
+import { CurrentUser } from '../common/decorators/user.decorator';
 import { BoardsService } from './boards.service';
 import { CreateBoardDTO } from './dto/create-board.dto';
 import { UpdateBoardDTO } from './dto/update-board.dto';
@@ -23,10 +29,13 @@ export class BoardsController {
   /**
    * 게시글 생성 API
    */
+  @UseGuards(JwtAuthGuard)
   @Post()
-  async create(@Body() request: CreateBoardDTO) {
-    // Todo: JWT 토큰에서 사용자 PK를 추출해서 넘겨주도록 해야한다.
-    await this.boardsService.create(request);
+  async create(
+    @CurrentUser() currentUser: User,
+    @Body() request: CreateBoardDTO,
+  ) {
+    await this.boardsService.create(request, currentUser);
   }
   /**
    * 게시글 수정 API
