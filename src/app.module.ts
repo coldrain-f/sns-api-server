@@ -35,14 +35,14 @@ import * as redisStore from 'cache-manager-ioredis';
       port: 6379,
     }),
     DatabaseModule,
+    AuthModule,
     UsersModule,
     LikesModule,
     BoardsModule,
     HashtagsModule,
     BoardsHashtagsModule,
-    AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService, AuthService],
+  providers: [AppService],
 })
 export class AppModule {}

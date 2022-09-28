@@ -14,8 +14,8 @@ export interface JwtTokenInfo {
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectRepository(User) private readonly usersRepository: Repository<User>,
     private readonly jwtService: JwtService,
+    @InjectRepository(User) private readonly usersRepository: Repository<User>,
   ) {}
 
   async jwtLogin(request: LoginRequestDTO): Promise<JwtTokenInfo> {
@@ -23,6 +23,7 @@ export class AuthService {
 
     // Todo: 이메일이 존재하는지 체크
     const findUser = await this.usersRepository.findOne({ where: { email } });
+
     if (!findUser) {
       throw new UnauthorizedException('이메일을 확인해 주세요');
     }
