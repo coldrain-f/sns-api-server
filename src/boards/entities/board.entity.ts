@@ -4,12 +4,14 @@ import { User } from 'src/users/entities/users.entity';
 import {
   Column,
   CreateDateColumn,
+  Entity,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
+@Entity()
 export class Board {
   @PrimaryGeneratedColumn()
   id: number;
