@@ -50,9 +50,13 @@ export class BoardsController {
   /**
    * 게시글 삭제 API
    */
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  async delete(@Param('id', ParseIntPipe) boardId: number) {
-    await this.boardsService.delete(boardId);
+  async delete(
+    @CurrentUser() currentUser: User,
+    @Param('id', ParseIntPipe) boardId: number,
+  ) {
+    await this.boardsService.delete(boardId, currentUser);
   }
   /**
    * 게시글 상세보기 API

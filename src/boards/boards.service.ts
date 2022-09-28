@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -98,10 +99,16 @@ export class BoardsService {
   /**
    * 게시글 삭제
    */
-  async delete(boardId: number): Promise<void> {
-    // Todo: 본인 게시글만 수정할 수 있도록 변경 필요
-    const board = await this.findOne({ where: { id: boardId } });
+  async delete(boardId: number, currentUser: User): Promise<void> {
+    const board = await this.findOne({
+      where: { id: boardId },
+      relations: ['user'],
+    });
     board.isDeleted = true;
+
+    if (board.user.id !== currentUser.id) {
+      throw new ForbiddenException('자신의 게시글만 삭제할 수 있습니다.');
+    }
 
     await this.boardsRepository.save(board);
   }
