@@ -31,11 +31,11 @@ export class BoardsController {
    */
   @UseGuards(JwtAuthGuard)
   @Post()
-  async create(
+  create(
     @CurrentUser() currentUser: User,
     @Body() request: CreateBoardDTO,
-  ) {
-    await this.boardsService.create(request, currentUser);
+  ): Promise<number> {
+    return this.boardsService.create(request, currentUser);
   }
   /**
    * 게시글 수정 API

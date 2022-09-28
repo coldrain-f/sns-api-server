@@ -38,16 +38,16 @@ export class BoardsService {
   /**
    * 게시글 생성
    */
-  async create(request: CreateBoardDTO, currentUser: User): Promise<void> {
+  async create(request: CreateBoardDTO, currentUser: User): Promise<number> {
     const { title, content, hashtags } = request;
-
+    let savedBoard: Board;
     // Todo: Connection 사용이 deprecated 추후에 다른 방법으로 적용
     const queryRunner = this.connection.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
     try {
-      const savedBoard: Board = await this.boardsRepository.save({
+      savedBoard = await this.boardsRepository.save({
         title,
         content,
         user: currentUser,
@@ -57,7 +57,6 @@ export class BoardsService {
       // Todo: 이미 존재하는 해시태그라면 저장하지 않도록 변경
       // Todo: 해시태그 유효성 검사
       this.addAllHashtag(hashtags, savedBoard);
-
       await queryRunner.commitTransaction();
     } catch (err) {
       await queryRunner.rollbackTransaction();
@@ -65,6 +64,8 @@ export class BoardsService {
     } finally {
       await queryRunner.release();
     }
+
+    return savedBoard.id;
   }
 
   /**
