@@ -24,4 +24,18 @@ export class UsersService {
     });
     return savedUser.id;
   }
+
+  /**
+   * JWT sub로 사용자 조회
+   */
+  async findUserBySub(jwtSub: string): Promise<User> {
+    const findUser = await this.usersRepository.findOne({
+      select: { password: false },
+      where: { id: parseInt(jwtSub) },
+    });
+    if (!findUser) {
+      throw new UnauthorizedException();
+    }
+    return findUser;
+  }
 }
