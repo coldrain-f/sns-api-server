@@ -9,7 +9,6 @@ import { LikesModule } from './likes/likes.module';
 import { BoardsModule } from './boards/boards.module';
 import { HashtagsModule } from './hashtags/hashtags.module';
 import { BoardsHashtagsModule } from './boards-hashtags/boards-hashtags.module';
-import { AuthService } from './auth/auth.service';
 import { AuthModule } from './auth/auth.module';
 import * as redisStore from 'cache-manager-ioredis';
 
