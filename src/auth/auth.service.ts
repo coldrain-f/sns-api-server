@@ -21,14 +21,14 @@ export class AuthService {
   async jwtLogin(request: LoginRequestDTO): Promise<JwtTokenInfo> {
     const { email, rawPassword } = request;
 
-    // Todo: 이메일이 존재하는지 체크
+    // 이메일이 존재하는지 체크
     const findUser = await this.usersRepository.findOne({ where: { email } });
 
     if (!findUser) {
       throw new UnauthorizedException('이메일을 확인해 주세요');
     }
 
-    // Todo: 비밀번호가 일치하는지 체크
+    // 비밀번호가 일치하는지 체크
     const isExistPassword: boolean = await bcrypt.compare(
       rawPassword,
       findUser.password,
