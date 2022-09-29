@@ -5,7 +5,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { string } from 'joi';
 import { BoardHashtag } from 'src/boards-hashtags/entities/board-hashtag.entity';
 import { Hashtag } from 'src/hashtags/entities/hashtag.entity';
 import { LikesService } from 'src/likes/likes.service';
@@ -163,10 +162,6 @@ export class BoardsService {
 
   /**
    * 게시글 목록 조회
-   * 정렬: default 작성일 / 작성일, 좋아요 수, 조회수
-   * 검색: 제목으로 검색
-   * 필터링: 해시태그로 필터링
-   * 페이징: 페이지당 deafult 10개
    */
   async getList(searchCondition: BoardSearchCondition) {
     const { page, size, sort, search } = searchCondition;
@@ -174,12 +169,31 @@ export class BoardsService {
     const sortCondition = this.setupSortCondition(sortKey, sortValue);
 
     const boards: Board[] = await this.boardsRepository.find({
+      relations: { boardHashtags: true },
       where: { title: Like(`%${search}%`) },
       order: sortCondition,
       skip: (page - 1) * size, // 시작 페이지
       take: size, // 페이지 당 데이터 수 default 10
     });
+
     return boards;
+  }
+
+  /**
+   * 좋아요, 좋아요 취소
+   */
+  async like(currentUser: User, boardId: number) {
+    const currentBoard = await this.findOne({ where: { id: boardId } });
+    const isLike = await this.likesService.isLike(currentUser, currentBoard);
+
+    // 좋아요를 이미 했다면 좋아요 취소
+    if (isLike) {
+      await this.likesService.unlike(currentUser, currentBoard);
+      return;
+    }
+
+    // 좋아요를 하지 않았으면 좋아요
+    await this.likesService.like(currentUser, currentBoard);
   }
 
   /**
