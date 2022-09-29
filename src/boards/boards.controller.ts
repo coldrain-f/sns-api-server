@@ -3,18 +3,17 @@ import {
   Controller,
   Delete,
   Get,
-  Logger,
   Param,
   ParseIntPipe,
   Patch,
   Post,
-  Req,
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt.guard';
 import { User } from 'src/users/entities/users.entity';
 import { CurrentUser } from '../common/decorators/user.decorator';
 import { BoardsService } from './boards.service';
+import { BoardSearchCondition } from './dto/board-search-condition.dto';
 import { CreateBoardDTO } from './dto/create-board.dto';
 import { UpdateBoardDTO } from './dto/update-board.dto';
 
@@ -70,4 +69,8 @@ export class BoardsController {
   /**
    * 게시글 목록 API
    */
+  @Get()
+  find(@Body() searchCondition: BoardSearchCondition) {
+    return this.boardsService.getList(searchCondition);
+  }
 }

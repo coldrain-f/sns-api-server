@@ -10,6 +10,7 @@ import { Hashtag } from 'src/hashtags/entities/hashtag.entity';
 import { LikesService } from 'src/likes/likes.service';
 import { User } from 'src/users/entities/users.entity';
 import { Connection, FindOneOptions, Repository } from 'typeorm';
+import { BoardSearchCondition } from './dto/board-search-condition.dto';
 import { CreateBoardDTO } from './dto/create-board.dto';
 import { UpdateBoardDTO } from './dto/update-board.dto';
 import { Board } from './entities/board.entity';
@@ -82,8 +83,6 @@ export class BoardsService {
     await queryRunner.startTransaction();
 
     try {
-      // Todo: 해시태그는 어떻게 할지 고민 필요
-      // 게시글과 연관된 해시태그를 싹다 지우고 새로 집어넣는다.
       const board: Board = await this.findOne({
         where: { id: boardId },
         relations: ['user'],
@@ -93,7 +92,9 @@ export class BoardsService {
       }
       board.title = title;
       board.content = content;
-      this.deleteAllHashtag(board);
+
+      // 게시글과 연관된 해시태그를 모두 제거하고 새로 집어넣는다.
+      this.deleteAllBoardHashtag(board);
       this.addAllHashtag(hashtags, board);
 
       await this.boardsRepository.save(board);
@@ -144,7 +145,6 @@ export class BoardsService {
     const hashtags: string[] = [];
     boardHashtags.forEach((bh) => hashtags.push(bh.hashtag.name));
 
-    // Todo: 상세보기 Response DTO 만들어서 내보내기
     return {
       title: board.title,
       content: board.content,
@@ -152,6 +152,32 @@ export class BoardsService {
       views: board.views,
       hashtags,
     };
+  }
+
+  /**
+   * 게시글 목록 조회
+   */
+  async getList(
+    searchCondition: BoardSearchCondition,
+  ): Promise<[Board[], number]> {
+    return (
+      this.boardsRepository
+        .createQueryBuilder()
+        .select([
+          'board.title',
+          'board.content',
+          'board.likeCount',
+          'board.views',
+        ])
+        .from(Board, 'board')
+        // Todo: 페이지 번호 계산해서 설정하도록 변경
+        .limit(searchCondition.limit)
+        .offset(searchCondition.offset)
+        .disableEscaping()
+        .getManyAndCount()
+    );
+
+    // Todo: 해시태그는 조회된 게시글 수 만큼 loop 돌면서 설정
   }
 
   /**
@@ -207,7 +233,7 @@ export class BoardsService {
   /**
    * 게시글 번호와 연관된 모든 해시태그를 삭제
    */
-  private async deleteAllHashtag(board: Board) {
+  private async deleteAllBoardHashtag(board: Board) {
     const queryRunner = this.connection.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
