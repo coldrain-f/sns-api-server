@@ -206,7 +206,7 @@ export class BoardsService {
   /**
    * 게시글에 해시태그 추가
    */
-  private async addAllHashtag(hashtags: string, board: Board) {
+  private async addAllHashtag(hashtags: string, board: Board): Promise<void> {
     hashtags.split(',').forEach(async (hashtag) => {
       // 해시태그를 조회해 온다.
       const findHashtag = await this.hashtagsRepository.findOne({
@@ -233,32 +233,17 @@ export class BoardsService {
   /**
    * 게시글 번호와 연관된 모든 해시태그를 삭제
    */
-  private async deleteAllBoardHashtag(board: Board) {
-    const queryRunner = this.connection.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
+  private async deleteAllBoardHashtag(board: Board): Promise<void> {
+    const boardHashtags: BoardHashtag[] =
+      await this.boardsHashtagsRepository.find({ where: { board } });
 
-    try {
-      const boardHashtags: BoardHashtag[] =
-        await this.boardsHashtagsRepository.find({ where: { board } });
+    // 부모 제거 -> Hashtag
+    boardHashtags.forEach(
+      async (boardHashtag) =>
+        await this.hashtagsRepository.remove(boardHashtag.hashtag),
+    );
 
-      // 부모 제거 -> Hashtag
-      boardHashtags.forEach(
-        async (boardHashtag) =>
-          await this.hashtagsRepository.remove(boardHashtag.hashtag),
-      );
-
-      // 부모가 없는 자식들 제거 -> BoardHashtag
-      await this.boardsHashtagsRepository.remove(boardHashtags);
-
-      await queryRunner.commitTransaction();
-    } catch (err) {
-      await queryRunner.rollbackTransaction();
-      throw new BadRequestException(
-        '게시글 번호에 해당하는 해시태그 삭제를 실패했습니다.',
-      );
-    } finally {
-      await queryRunner.release();
-    }
+    // 부모가 없는 자식들 제거 -> BoardHashtag
+    await this.boardsHashtagsRepository.remove(boardHashtags);
   }
 }
