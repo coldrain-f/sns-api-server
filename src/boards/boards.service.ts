@@ -54,7 +54,6 @@ export class BoardsService {
       });
 
       // Todo: 해시태그가 없는 경우도 동작하는지 체크
-      // Todo: 이미 존재하는 해시태그라면 저장하지 않도록 변경
       // Todo: 해시태그 유효성 검사
       this.addAllHashtag(hashtags, savedBoard);
       await queryRunner.commitTransaction();
@@ -183,12 +182,24 @@ export class BoardsService {
    */
   private async addAllHashtag(hashtags: string, board: Board) {
     hashtags.split(',').forEach(async (hashtag) => {
-      const savedHashtag: Hashtag = await this.hashtagsRepository.save({
-        name: hashtag,
+      // 해시태그를 조회해 온다.
+      const findHashtag = await this.hashtagsRepository.findOne({
+        where: { name: hashtag },
       });
+
+      let savedHashtag: Hashtag;
+      // 조회해온 해시태그가 존재하지 않는다면 새로 저장
+      if (!findHashtag) {
+        savedHashtag = await this.hashtagsRepository.save({
+          name: hashtag,
+        });
+      }
+
+      // 존재한다면 조회해온 해시태그를 설정
+      // 존재하지 않는다면 새로 저장한 해시태그를 설정
       await this.boardsHashtagsRepository.save({
         board,
-        hashtag: savedHashtag,
+        hashtag: findHashtag ? findHashtag : savedHashtag,
       });
     });
   }
