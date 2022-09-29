@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SignupRequestDTO } from './dto/signup-request.dto';
@@ -18,6 +22,13 @@ export class UsersService {
     const { email, rawPassword } = request;
 
     const hashedPassword = await bcrypt.hash(rawPassword, 10);
+
+    // 이메일 중복체크
+    const findUser = await this.usersRepository.findOne({ where: { email } });
+    if (findUser) {
+      throw new BadRequestException('이미 가입된 이메일입니다.');
+    }
+
     const savedUser = await this.usersRepository.save({
       email,
       password: hashedPassword,
