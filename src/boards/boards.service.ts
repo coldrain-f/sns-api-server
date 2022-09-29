@@ -5,11 +5,17 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { string } from 'joi';
 import { BoardHashtag } from 'src/boards-hashtags/entities/board-hashtag.entity';
 import { Hashtag } from 'src/hashtags/entities/hashtag.entity';
 import { LikesService } from 'src/likes/likes.service';
 import { User } from 'src/users/entities/users.entity';
-import { Connection, FindOneOptions, Repository } from 'typeorm';
+import {
+  Connection,
+  FindOneOptions,
+  FindOptionsOrder,
+  Repository,
+} from 'typeorm';
 import { BoardSearchCondition } from './dto/board-search-condition.dto';
 import { CreateBoardDTO } from './dto/create-board.dto';
 import { UpdateBoardDTO } from './dto/update-board.dto';
@@ -156,28 +162,22 @@ export class BoardsService {
 
   /**
    * 게시글 목록 조회
+   * 정렬: default 작성일 / 작성일, 좋아요 수, 조회수
+   * 검색: 제목으로 검색
+   * 필터링: 해시태그로 필터링
+   * 페이징: 페이지당 deafult 10개
    */
-  async getList(
-    searchCondition: BoardSearchCondition,
-  ): Promise<[Board[], number]> {
-    return (
-      this.boardsRepository
-        .createQueryBuilder()
-        .select([
-          'board.title',
-          'board.content',
-          'board.likeCount',
-          'board.views',
-        ])
-        .from(Board, 'board')
-        // Todo: 페이지 번호 계산해서 설정하도록 변경
-        .limit(searchCondition.limit)
-        .offset(searchCondition.offset)
-        .disableEscaping()
-        .getManyAndCount()
-    );
+  async getList(searchCondition: BoardSearchCondition) {
+    const { page, size, sort } = searchCondition;
+    const [sortKey, sortValue] = sort.split(',');
+    const sortCondition = this.setupSortCondition(sortKey, sortValue);
 
-    // Todo: 해시태그는 조회된 게시글 수 만큼 loop 돌면서 설정
+    const boards: Board[] = await this.boardsRepository.find({
+      order: sortCondition,
+      skip: (page - 1) * size, // 시작 페이지
+      take: size, // 페이지 당 데이터 수 default 10
+    });
+    return boards;
   }
 
   /**
@@ -245,5 +245,33 @@ export class BoardsService {
 
     // 부모가 없는 자식들 제거 -> BoardHashtag
     await this.boardsHashtagsRepository.remove(boardHashtags);
+  }
+
+  /**
+   * 정렬 조건 설정
+   */
+   private setupSortCondition(
+    key: string,
+    value: string,
+  ): FindOptionsOrder<Board> {
+    let sortCondition: FindOptionsOrder<Board>;
+
+    if (key === 'createdAt' && value === 'desc') {
+      sortCondition = { createdAt: 'desc' };
+    } else if (key === 'createdAt' && value === 'asc') {
+      sortCondition = { createdAt: 'asc' };
+    } else if (key === 'likeCount' && value === 'desc') {
+      sortCondition = { likeCount: 'desc' };
+    } else if (key === 'likeCount' && value === 'asc') {
+      sortCondition = { likeCount: 'asc' };
+    } else if (key === 'views' && value === 'desc') {
+      sortCondition = { views: 'desc' };
+    } else if (key === 'views' && value === 'asc') {
+      sortCondition = { views: 'asc' };
+    } else {
+      throw new BadRequestException('정렬 조건을 다시 확인해 주세요.');
+    }
+
+    return sortCondition;
   }
 }
