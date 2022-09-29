@@ -18,4 +18,8 @@ export class BoardSearchCondition {
   @IsString()
   @IsOptional()
   sortDirection: string | 'desc';
+
+  @IsString()
+  @IsOptional()
+  search: string | '';
 }

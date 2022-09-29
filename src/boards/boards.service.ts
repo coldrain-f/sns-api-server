@@ -14,6 +14,7 @@ import {
   Connection,
   FindOneOptions,
   FindOptionsOrder,
+  Like,
   Repository,
 } from 'typeorm';
 import { BoardSearchCondition } from './dto/board-search-condition.dto';
@@ -142,7 +143,7 @@ export class BoardsService {
 
     board.views = await this.incrementViews(board);
     board.likeCount = await this.likesService.getLikeCountByBoardId(boardId);
-    // 2. 해시태그 만들어서 배열로 설정
+    // 해시태그 만들어서 배열로 설정
     const boardHashtags: BoardHashtag[] =
       await this.boardsHashtagsRepository.find({
         where: board,
@@ -168,11 +169,12 @@ export class BoardsService {
    * 페이징: 페이지당 deafult 10개
    */
   async getList(searchCondition: BoardSearchCondition) {
-    const { page, size, sort } = searchCondition;
+    const { page, size, sort, search } = searchCondition;
     const [sortKey, sortValue] = sort.split(',');
     const sortCondition = this.setupSortCondition(sortKey, sortValue);
 
     const boards: Board[] = await this.boardsRepository.find({
+      where: { title: Like(`%${search}%`) },
       order: sortCondition,
       skip: (page - 1) * size, // 시작 페이지
       take: size, // 페이지 당 데이터 수 default 10
@@ -250,7 +252,7 @@ export class BoardsService {
   /**
    * 정렬 조건 설정
    */
-   private setupSortCondition(
+  private setupSortCondition(
     key: string,
     value: string,
   ): FindOptionsOrder<Board> {
