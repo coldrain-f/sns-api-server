@@ -10,7 +10,12 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt.guard';
 import { User } from 'src/users/entities/users.entity';
 import { CurrentUser } from '../common/decorators/user.decorator';
@@ -33,7 +38,7 @@ export class BoardsController {
    * 게시글 생성 API
    */
   @ApiOperation({ summary: '게시글 생성 API' })
-  @ApiResponse({
+  @ApiCreatedResponse({
     status: HttpStatus.CREATED,
     description: '게시글 생성 성공',
     schema: { example: { success: true, data: 1 } },
@@ -51,7 +56,7 @@ export class BoardsController {
    * 게시글 수정 API
    */
   @ApiOperation({ summary: '게시글 수정 API' })
-  @ApiResponse({
+  @ApiOkResponse({
     status: HttpStatus.OK,
     description: '게시글 수정 성공',
     schema: { example: { success: true, data: null } },
@@ -70,7 +75,7 @@ export class BoardsController {
    * 게시글 삭제 API
    */
   @ApiOperation({ summary: '게시글 삭제 API' })
-  @ApiResponse({
+  @ApiCreatedResponse({
     status: HttpStatus.CREATED,
     description: '게시글 삭제 성공',
     schema: { example: { success: true, data: null } },
@@ -88,7 +93,7 @@ export class BoardsController {
    * 게시글 상세보기 API
    */
   @ApiOperation({ summary: '게시글 상세 조회 API' })
-  @ApiResponse({
+  @ApiOkResponse({
     status: HttpStatus.OK,
     description: '게시글 상세 조회 성공',
     schema: {
@@ -116,7 +121,7 @@ export class BoardsController {
    * 게시글 목록 API
    */
   @ApiOperation({ summary: '게시글 목록 조회 API' })
-  @ApiResponse({
+  @ApiOkResponse({
     status: HttpStatus.OK,
     description: '게시글 목록 조회 성공',
     schema: {

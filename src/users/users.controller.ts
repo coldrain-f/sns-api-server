@@ -1,5 +1,5 @@
 import { Body, Controller, HttpStatus, Post } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthService, JwtTokenInfo } from 'src/auth/auth.service';
 import { LoginRequestDTO } from './dto/login-request.dto';
 import { SignupRequestDTO } from './dto/signup-request.dto';
@@ -14,7 +14,7 @@ export class UsersController {
   ) {}
 
   @ApiOperation({ summary: '회원가입 API' })
-  @ApiResponse({
+  @ApiCreatedResponse({
     status: HttpStatus.CREATED,
     description: '회원가입 성공',
     schema: { example: { success: true, data: 1 } },
@@ -25,7 +25,7 @@ export class UsersController {
   }
 
   @ApiOperation({ summary: '로그인 API' })
-  @ApiResponse({
+  @ApiCreatedResponse({
     status: HttpStatus.CREATED,
     description: '로그인 성공',
     schema: {
