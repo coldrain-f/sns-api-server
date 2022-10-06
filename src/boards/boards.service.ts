@@ -23,29 +23,10 @@ import { UpdateBoardDTO } from './dto/update-board.dto';
 import { Board } from './entities/board.entity';
 
 export class BoardDetailInfo {
-  @ApiProperty({
-    example: 'title',
-  })
   title: string;
-
-  @ApiProperty({
-    example: 'content',
-  })
   content: string;
-
-  @ApiProperty({
-    example: 0,
-  })
   likeCount: number;
-
-  @ApiProperty({
-    example: 0,
-  })
   views: number;
-
-  @ApiProperty({
-    example: ['#tag1', '#tag2'],
-  })
   hashtags: string[];
 }
 
