@@ -9,6 +9,7 @@ import {
   Patch,
   Post,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import {
   ApiCreatedResponse,
@@ -17,6 +18,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt.guard';
+import { SuccessInterceptor } from 'src/common/interceptors/success.interceptor';
 import { User } from 'src/users/entities/users.entity';
 import { CurrentUser } from '../common/decorators/user.decorator';
 import { BoardDetailInfo, BoardsService } from './boards.service';
@@ -26,11 +28,10 @@ import { UpdateBoardDTO } from './dto/update-board.dto';
 import { Board } from './entities/board.entity';
 
 // Todo: Swagger 응답과 실제 응답과 일치하지 않는 데이터 변경 필요
-// Todo: 인터셉터 적용해서 { success: boolean, data: T }포맷으로 응답하도록 변경 필요
-// Todo: 전체적으로 불 필요한 service, module, controller 제거
 
 @ApiTags('게시글 API')
 @Controller('boards')
+@UseInterceptors(SuccessInterceptor)
 export class BoardsController {
   constructor(private readonly boardsService: BoardsService) {}
 

@@ -1,12 +1,20 @@
-import { Body, Controller, HttpStatus, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpStatus,
+  Post,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthService, JwtTokenInfo } from 'src/auth/auth.service';
+import { SuccessInterceptor } from 'src/common/interceptors/success.interceptor';
 import { LoginRequestDTO } from './dto/login-request.dto';
 import { SignupRequestDTO } from './dto/signup-request.dto';
 import { UsersService } from './users.service';
 
 @ApiTags('사용자 API')
 @Controller('users')
+@UseInterceptors(SuccessInterceptor)
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
