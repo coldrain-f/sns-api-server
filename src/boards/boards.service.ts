@@ -4,6 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { ApiProperty } from '@nestjs/swagger';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BoardHashtag } from 'src/boards-hashtags/entities/board-hashtag.entity';
 import { Hashtag } from 'src/hashtags/entities/hashtag.entity';
@@ -21,11 +22,30 @@ import { CreateBoardDTO } from './dto/create-board.dto';
 import { UpdateBoardDTO } from './dto/update-board.dto';
 import { Board } from './entities/board.entity';
 
-export interface BoardDetailInfo {
+export class BoardDetailInfo {
+  @ApiProperty({
+    example: 'title',
+  })
   title: string;
+
+  @ApiProperty({
+    example: 'content',
+  })
   content: string;
+
+  @ApiProperty({
+    example: 0,
+  })
   likeCount: number;
+
+  @ApiProperty({
+    example: 0,
+  })
   views: number;
+
+  @ApiProperty({
+    example: ['#tag1', '#tag2'],
+  })
   hashtags: string[];
 }
 
