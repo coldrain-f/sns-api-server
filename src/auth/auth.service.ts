@@ -6,8 +6,13 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { Payload } from './jwt/jwt.strategy';
+import { ApiProperty } from '@nestjs/swagger';
 
-export interface JwtTokenInfo {
+export class JwtTokenInfo {
+  @ApiProperty({
+    example:
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im9sYWZAbmF2ZXIuY29tIiwic3ViIjoiNiIsImlhdCI6MTY2NTA0NDk5NiwiZXhwIjoxNjk2NjAyNTk2fQ.le6etwLENg61rfCnJhCyLgejgo9AxGwSjS-by0il2gs',
+  })
   token: string;
 }
 

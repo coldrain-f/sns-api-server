@@ -11,7 +11,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { number } from 'joi';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt.guard';
 import { User } from 'src/users/entities/users.entity';
 import { CurrentUser } from '../common/decorators/user.decorator';
@@ -33,7 +32,7 @@ export class BoardsController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: '게시글 생성 성공',
-    type: number,
+    schema: { example: 1 },
   })
   @UseGuards(JwtAuthGuard)
   @Post()
