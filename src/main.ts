@@ -22,6 +22,10 @@ async function bootstrap() {
     }),
   );
 
+  // CORS 설정 추가
+  // 나중에는 origin을 프론트 배포 URL로 변경해야 한다.
+  app.enableCors({ origin: true, credentials: true });
+
   // Swagger
   const config = new DocumentBuilder()
     .setTitle('SNS API SERVER')
@@ -35,7 +39,7 @@ async function bootstrap() {
     swaggerOptions: { defaultModelsExpandDepth: -1 },
   });
 
-  // Global Pipe
+  // class-validator 사용을 위한 Global Pipe 설정
   app.useGlobalPipes(new ValidationPipe());
 
   await app.listen(PORT);
