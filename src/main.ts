@@ -24,13 +24,14 @@ async function bootstrap() {
 
   // Swagger
   const config = new DocumentBuilder()
-    .setTitle('title')
-    .setDescription('description')
+    .setTitle('SNS API SERVER')
+    .setDescription('소셜 네트워크 서비스 API 서버 스웨거 문서입니다.')
     .setVersion('1.0.0')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document, {
+    // 하단 Schema Models 제거 옵션
     swaggerOptions: { defaultModelsExpandDepth: -1 },
   });
 
