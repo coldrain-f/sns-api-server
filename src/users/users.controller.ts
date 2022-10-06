@@ -17,7 +17,7 @@ export class UsersController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: '회원가입 성공',
-    schema: { example: 1 },
+    schema: { example: { success: true, data: 1 } },
   })
   @Post('signup')
   signup(@Body() request: SignupRequestDTO): Promise<number> {
@@ -28,7 +28,12 @@ export class UsersController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: '로그인 성공',
-    type: JwtTokenInfo,
+    schema: {
+      example: {
+        success: true,
+        data: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im9sYWZAbmF2ZXIuY29tIiwic3ViIjoiNiIsImlhdCI6MTY2NTA0NDk5NiwiZXhwIjoxNjk2NjAyNTk2fQ.le6etwLENg61rfCnJhCyLgejgo9AxGwSjS-by0il2gs',
+      },
+    },
   })
   @Post('login')
   login(@Body() request: LoginRequestDTO): Promise<JwtTokenInfo> {

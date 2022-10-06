@@ -20,6 +20,9 @@ import { CreateBoardDTO } from './dto/create-board.dto';
 import { UpdateBoardDTO } from './dto/update-board.dto';
 import { Board } from './entities/board.entity';
 
+// Todo: Swagger 응답과 실제 응답과 일치하지 않는 데이터 변경 필요
+// Todo: 인터셉터 적용해서 { success: boolean, data: T }포맷으로 응답하도록 변경 필요
+
 @ApiTags('게시글 API')
 @Controller('boards')
 export class BoardsController {
@@ -32,7 +35,7 @@ export class BoardsController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: '게시글 생성 성공',
-    schema: { example: 1 },
+    schema: { example: { success: true, data: 1 } },
   })
   @UseGuards(JwtAuthGuard)
   @Post()
@@ -50,6 +53,7 @@ export class BoardsController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: '게시글 수정 성공',
+    schema: { example: { success: true, data: null } },
   })
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
@@ -68,6 +72,7 @@ export class BoardsController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: '게시글 삭제 성공',
+    schema: { example: { success: true, data: null } },
   })
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
@@ -85,7 +90,19 @@ export class BoardsController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: '게시글 상세 조회 성공',
-    type: BoardDetailInfo,
+    schema: {
+      example: {
+        success: true,
+        data: {
+          id: 1,
+          title: 'title',
+          content: 'content',
+          likeCount: 0,
+          views: 0,
+          hashtags: ['#tag1', '#tag2'],
+        },
+      },
+    },
   })
   @Get(':id')
   async findOne(
@@ -101,6 +118,21 @@ export class BoardsController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: '게시글 목록 조회 성공',
+    schema: {
+      example: {
+        success: true,
+        data: [
+          {
+            id: 1,
+            title: 'title',
+            content: 'content',
+            likeCount: 0,
+            views: 0,
+            hashtags: ['#tag1', '#tag2'],
+          },
+        ],
+      },
+    },
   })
   @Get()
   find(@Body() searchCondition: BoardSearchCondition): Promise<Board[]> {
